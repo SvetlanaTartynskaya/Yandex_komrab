@@ -1,11 +1,13 @@
 import sys
+
 from PyQt5.QtGui import QPixmap
+
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import Qt
+
 import requests
 
-static_api_server = "https://static-maps.yandex.ru/1.x/"
+STATIC_API_SERVER = "https://static-maps.yandex.ru/1.x/"
 
 
 def get_map_from_coords(coords, type_in=str):
@@ -15,7 +17,7 @@ def get_map_from_coords(coords, type_in=str):
         "l": "map"
     }
 
-    response = requests.request(method="get", url=static_api_server,
+    response = requests.request(method="GET", url=STATIC_API_SERVER,
                                 params=params)
     if response.status_code == 200:
         return response.content
@@ -27,46 +29,12 @@ class MyWidget(QMainWindow):
         super().__init__()
         uic.loadUi('qt.ui', self)
         self.search_btn.clicked.connect(self.search)
-        self.map_scale = 1
 
     def search(self):
         image = get_map_from_coords(reversed(self.line_enter_coords.text().replace(" ", "").split(",")), type_in=list)
         pixmap = QPixmap()
         pixmap.loadFromData(image)
-        self.map.setPixmap(pixmap.scaled(self.map.size(), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_PageUp:
-            if self.map_scale < 5:
-                self.map_scale += 1
-        elif event.key() == Qt.Key_PageDown:
-            if self.map_scale > 1:
-                self.map_scale -= 1
-        elif event.key() == Qt.Key_Up:
-            self.move_map(0, -self.map.height() * 0.1)
-        elif event.key() == Qt.Key_Down:
-            self.move_map(0, self.map.height() * 0.1)
-        elif event.key() == Qt.Key_Left:
-            self.move_map(-self.map.width() * 0.1, 0)
-        elif event.key() == Qt.Key_Right:
-            self.move_map(self.map.width() * 0.1, 0)
-
-        self.update_map()
-
-    def move_map(self, dx, dy):
-        center_lat, center_lon = map(float, self.line_enter_coords.text().replace(" ", "").split(","))
-        span_lat, span_lon = 0.025 * self.map_scale, 0.025 * self.map_scale
-
-        new_center_lat = max(min(center_lat + dy / (111 * span_lat), 90), -90)
-        new_center_lon = max(min(center_lon + dx / (111 * span_lon), 180), -180)
-
-        self.line_enter_coords.setText(f"{new_center_lat}, {new_center_lon}")
-
-    def update_map(self):
-        image = get_map_from_coords(reversed(self.line_enter_coords.text().replace(" ", "").split(",")), type_in=list)
-        pixmap = QPixmap()
-        pixmap.loadFromData(image)
-        self.map.setPixmap(pixmap.scaled(self.map.size(), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio))
+        self.map.setPixmap(pixmap)
 
 
 def except_hook(cls, exception, traceback):
