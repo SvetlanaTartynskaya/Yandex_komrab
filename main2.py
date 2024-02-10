@@ -5,10 +5,10 @@ import sys
 STATIC_API_SERVER = "https://static-maps.yandex.ru/1.x/"
 
 
-def get_map_from_coords(coords, type_in=str):
+def get_map_from_coords(coords, spn, type_in=str):
     params = {
         "ll": coords if type_in is str else ",".join(coords),
-        "spn": "0.05,0.05",
+        "spn": f"{spn[0]},{spn[1]}",
         "l": "map"
     }
     res = requests.request(method="GET", url=STATIC_API_SERVER, params=params)
@@ -27,10 +27,13 @@ class Map:
         self.label_font = pygame.font.SysFont('Arial', 24)
         self.draw_label()
         pygame.display.flip()
-        self.coords = input('ВВЕДИТЕ КООРДИНАТЫ В ФОРМАТЕ (ШИРОТА,ДОЛГОТА): ').replace(' ', '').split(',')
+        # self.coords = input('ВВЕДИТЕ КООРДИНАТЫ В ФОРМАТЕ (ШИРОТА,ДОЛГОТА): ').replace(' ', '').split(',')
+        self.coords = '37.588392,55.734036'.replace(' ', '').split(',')
+        self.spn = (0.05, 0.05)
+        self.scale = 1.1
 
     def search(self, coords):
-        image = get_map_from_coords(coords, type_in=list)
+        image = get_map_from_coords(coords, self.spn, type_in=list)
         if image:
             self.map = pygame.image.load(image)
             self.map = pygame.transform.scale(self.map, self.screen.get_size())
@@ -41,16 +44,30 @@ class Map:
 
     def draw_label(self):
         label_text = "Введите координаты в консоль Python"
-        label_surface = self.label_font.render(label_text, True, (255, 255, 255))
-        label_rect = label_surface.get_rect()
-        label_rect.center = self.screen.get_rect().center
-        self.screen.blit(label_surface, label_rect)
+        label_surface = self.label_font.render(label_text, True, (0, 0, 0))
+        self.screen.blit(label_surface, (10, 10))
 
     def update(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_PAGEUP:
+                    print(1)
+                    if self.scale < 2:
+                        self.scale += 0.1
+                    self.spn = (self.spn[0] * self.scale, self.spn[1] * self.scale)
+                    self.search(self.coords)
+                    self.draw()
+                    pygame.display.flip()
+                if event.key == pygame.K_PAGEDOWN:
+                    if self.scale > 1:
+                        self.scale -= 0.1
+                    self.spn = (self.spn[0] * (self.scale % 1), self.spn[1] * (self.scale % 1))
+                    self.search(self.coords)
+                    self.draw()
+                    pygame.display.flip()
 
     def run(self):
         self.search(self.coords)
