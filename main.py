@@ -24,7 +24,10 @@ class Map:
         pygame.init()
         self.screen = pygame.display.set_mode((600, 400))
         self.map = pygame.Surface((400, 400))
-        self.coords = input().replace(' ', '').split(',')
+        self.label_font = pygame.font.SysFont('Arial', 24)
+        self.draw_label()
+        pygame.display.flip()
+        self.coords = input('ВВЕДИТЕ КООРДИНАТЫ В ФОРМАТЕ (ШИРОТА,ДОЛГОТА): ').replace(' ', '').split(',')
 
     def search(self, coords):
         image = get_map_from_coords(coords, type_in=list)
@@ -35,6 +38,13 @@ class Map:
     def draw(self):
         self.screen.fill((255, 255, 255))
         self.screen.blit(self.map, (0, 0))
+
+    def draw_label(self):
+        label_text = "Введите координаты в консоль Python"
+        label_surface = self.label_font.render(label_text, True, (255, 255, 255))
+        label_rect = label_surface.get_rect()
+        label_rect.center = self.screen.get_rect().center
+        self.screen.blit(label_surface, label_rect)
 
     def update(self):
         for event in pygame.event.get():
