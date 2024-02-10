@@ -69,7 +69,7 @@
              <item>
               <widget class="QPushButton" name="search_btn">
                <property name="text">
-                <string>Поиск</string>
+                <string>Пуск</string>
                </property>
               </widget>
              </item>
