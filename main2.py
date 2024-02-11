@@ -27,8 +27,7 @@ class Map:
         self.label_font = pygame.font.SysFont('Arial', 24)
         self.draw_label()
         pygame.display.flip()
-        # self.coords = input('ВВЕДИТЕ КООРДИНАТЫ В ФОРМАТЕ (ШИРОТА,ДОЛГОТА): ').replace(' ', '').split(',')
-        self.coords = '37.588392,55.734036'.replace(' ', '').split(',')
+        self.coords = input('ВВЕДИТЕ КООРДИНАТЫ В ФОРМАТЕ (ШИРОТА,ДОЛГОТА): ').replace(' ', '').split(',')
         self.spn = (0.05, 0.05)
         self.scale = 1.1
 
